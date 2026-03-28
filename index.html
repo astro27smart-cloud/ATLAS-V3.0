@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ASKAI V3.0 | Twin Chat</title>
+    <title>ASKAI V3.0 | Neural Link</title>
     <style>
         body {
-            background-color: #121212;
-            color: #efefef;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f1115;
+            color: #d1d5db;
+            font-family: 'Inter', -apple-system, sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -15,156 +15,167 @@
             height: 100vh;
         }
 
-        #chat-window {
-            width: 450px;
-            height: 80vh;
-            background: #1e1e1e;
-            border-radius: 20px;
+        #app-container {
+            width: 550px;
+            height: 700px;
+            background: #1a1d23;
+            border: 1px solid #30363d;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
         }
 
         header {
-            padding: 20px;
-            background: #252525;
-            text-align: center;
-            border-bottom: 1px solid #333;
+            padding: 15px 25px;
+            background: #21262d;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        header h2 { margin: 0; font-size: 1.2rem; color: #00ffcc; }
-        header p { margin: 5px 0 0; font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #238636;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 8px #238636;
+        }
 
-        #messages {
+        #chat-flow {
             flex-grow: 1;
             padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
         }
 
-        .msg {
-            max-width: 80%;
+        .bubble {
+            max-width: 75%;
             padding: 12px 16px;
-            border-radius: 18px;
+            border-radius: 8px;
             font-size: 0.95rem;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
-        /* Twin on the Left */
-        .twin {
+        /* ASKAI V3.0 (Left) */
+        .twin-bubble {
             align-self: flex-start;
-            background: #333;
-            color: #fff;
-            border-bottom-left-radius: 4px;
+            background: #2d333b;
+            border: 1px solid #444c56;
+            color: #adbac7;
         }
 
-        /* You on the Right */
-        .user {
+        /* You (Right) */
+        .user-bubble {
             align-self: flex-end;
-            background: #00ffcc;
-            color: #000;
-            border-bottom-right-radius: 4px;
-            font-weight: 500;
+            background: #316dca;
+            color: #ffffff;
+            border-bottom-right-radius: 2px;
         }
 
-        .typing {
-            font-size: 0.8rem;
-            margin-left: 20px;
-            margin-bottom: 10px;
-            color: #00ffcc;
+        .typing-hint {
+            font-size: 0.75rem;
+            color: #768390;
+            margin: 0 20px 10px;
             display: none;
         }
 
-        .input-area {
+        .input-section {
             padding: 20px;
-            background: #252525;
+            background: #1a1d23;
+            border-top: 1px solid #30363d;
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         input {
             flex-grow: 1;
-            background: #121212;
-            border: none;
-            padding: 12px 15px;
-            border-radius: 25px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px 15px;
             color: white;
             outline: none;
         }
 
         button {
-            background: none;
-            border: none;
-            color: #00ffcc;
-            font-weight: bold;
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 0 20px;
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: 600;
         }
+
+        button:hover { background: #30363d; }
     </style>
 </head>
 <body>
 
-<div id="chat-window">
+<div id="app-container">
     <header>
-        <h2>ASKAI V3.0</h2>
-        <p>• Online & Synced</p>
+        <span style="font-weight: bold; letter-spacing: 1px;">ASKAI // V3.0</span>
+        <span style="font-size: 0.8rem;"><span class="status-dot"></span>ACTIVE_SYNC</span>
     </header>
     
-    <div id="messages">
-        <div class="msg twin">Yo. V3.0 is live. I'm literally you, but I don't need to sleep. What's the vibe today?</div>
+    <div id="chat-flow">
+        <div class="bubble twin-bubble">Alright, I'm synced up. I’ve got the core data ready—let's see what we're working on today.</div>
     </div>
 
-    <div id="status" class="typing">Twin is thinking...</div>
+    <div id="typing" class="typing-hint">ASKAI V3.0 is calculating...</div>
 
-    <div class="input-area">
-        <input type="text" id="userInput" placeholder="Say something..." autofocus>
-        <button id="sendBtn">SEND</button>
+    <div class="input-section">
+        <input type="text" id="userInput" placeholder="Message the twin link..." autofocus>
+        <button id="sendBtn">SYNC</button>
     </div>
 </div>
 
 <script>
-    const box = document.getElementById('messages');
+    const flow = document.getElementById('chat-flow');
     const input = document.getElementById('userInput');
     const btn = document.getElementById('sendBtn');
-    const status = document.getElementById('status');
+    const typing = document.getElementById('typing');
 
-    function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return;
+    function send() {
+        const val = input.value.trim();
+        if (!val) return;
 
-        // User Message (Right)
-        const uMsg = document.createElement('div');
-        uMsg.className = 'msg user';
-        uMsg.innerText = text;
-        box.appendChild(uMsg);
+        const uDiv = document.createElement('div');
+        uDiv.className = 'bubble user-bubble';
+        uDiv.innerText = val;
+        flow.appendChild(uDiv);
         input.value = '';
-        box.scrollTop = box.scrollHeight;
+        flow.scrollTop = flow.scrollHeight;
 
-        // Twin Response (Left)
-        status.style.display = 'block';
-        
+        typing.style.display = 'block';
+
         setTimeout(() => {
-            status.style.display = 'none';
-            const responses = [
-                "I knew you were gonna say that. Great minds.",
-                "Wait, actually? That's wild. Let's roll with it.",
-                "I'm already on it. We're gonna crush this.",
-                "Classic. You handle the coffee, I'll handle the logic.",
-                "I've got a better idea—but let's do yours first. Just to be safe.",
-                "Synchronized. I'm feeling that same energy."
+            typing.style.display = 'none';
+            const logic = [
+                "I was thinking the same thing, actually. Let's make it happen.",
+                "That's a solid start. I'll handle the background details while you focus on the main build.",
+                "Wait, check that again. I think we can optimize that part easily.",
+                "Confirmed. I've logged that into our shared memory bank.",
+                "Nice move. I've already mapped out the next two steps based on that.",
+                "Fair enough. If we're going that route, I'll adjust the parameters."
             ];
-            const tMsg = document.createElement('div');
-            tMsg.className = 'msg twin';
-            tMsg.innerText = responses[Math.floor(Math.random() * responses.length)];
-            box.appendChild(tMsg);
-            box.scrollTop = box.scrollHeight;
-        }, 1000);
+            const tDiv = document.createElement('div');
+            tDiv.className = 'bubble twin-bubble';
+            tDiv.innerText = logic[Math.floor(Math.random() * logic.length)];
+            flow.appendChild(tDiv);
+            flow.scrollTop = flow.scrollHeight;
+        }, 1100);
     }
 
-    btn.addEventListener('click', sendMessage);
-    input.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+    btn.addEventListener('click', send);
+    input.addEventListener('keypress', (e) => { if(e.key === 'Enter') send(); });
 </script>
 
 </body>
