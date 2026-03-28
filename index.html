@@ -2,155 +2,187 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ASKAI V3.0 | Digital Twin Interface</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASKAI V3.0 | Neural Twin</title>
     <style>
         :root {
-            --neon-cyan: #00f2ff;
-            --dark-void: #050505;
+            --glow: #00f2ff;
+            --bg: #020202;
+            --text: #e0e0e0;
         }
 
         body {
-            background-color: var(--dark-void);
-            color: var(--neon-cyan);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Consolas', 'Courier New', monospace;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
         }
 
-        #interface-container {
-            width: 90%;
-            max-width: 800px;
-            border: 2px solid var(--neon-cyan);
-            background: rgba(0, 20, 30, 0.8);
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
-            border-radius: 8px;
+        #wrapper {
+            width: 850px;
+            height: 600px;
+            border: 1px solid rgba(0, 242, 255, 0.3);
             display: flex;
             flex-direction: column;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 1), 0 0 20px rgba(0, 242, 255, 0.1);
+            position: relative;
         }
 
+        /* Header / Status Bar */
         header {
-            padding: 15px;
-            border-bottom: 1px solid var(--neon-cyan);
-            text-align: center;
-            letter-spacing: 3px;
-            background: rgba(0, 242, 255, 0.1);
-        }
-
-        #terminal {
-            height: 450px;
-            padding: 20px;
-            overflow-y: auto;
-            font-family: 'Consolas', monospace;
-            font-size: 0.95rem;
-        }
-
-        .log-entry { margin-bottom: 15px; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .user-label { color: #fff; font-weight: bold; }
-        .twin-label { color: var(--neon-cyan); font-weight: bold; }
-
-        #input-row {
+            padding: 10px 20px;
+            background: rgba(0, 242, 255, 0.05);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.2);
             display: flex;
-            padding: 15px;
-            border-top: 1px solid rgba(0, 242, 255, 0.3);
+            justify-content: space-between;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #sync-bar {
+            width: 100px;
+            height: 4px;
+            background: #222;
+            display: inline-block;
+            margin-left: 10px;
+            position: relative;
+        }
+
+        #sync-fill {
+            width: 30%;
+            height: 100%;
+            background: var(--glow);
+            box-shadow: 0 0 10px var(--glow);
+            transition: width 1s ease;
+        }
+
+        /* Chat Area */
+        #display {
+            flex-grow: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: radial-gradient(circle at center, #050505 0%, #000 100%);
+            scrollbar-width: thin;
+        }
+
+        .entry { margin-bottom: 20px; line-height: 1.5; opacity: 0; transform: translateY(10px); animation: emerge 0.4s forwards; }
+        @keyframes emerge { to { opacity: 1; transform: translateY(0); } }
+
+        .label-twin { color: var(--glow); font-weight: bold; margin-right: 10px; }
+        .label-user { color: #ff0055; font-weight: bold; margin-right: 10px; }
+
+        /* Input Area */
+        .input-box {
+            padding: 20px;
+            background: #000;
+            border-top: 1px solid rgba(0, 242, 255, 0.2);
+            display: flex;
         }
 
         input {
             flex-grow: 1;
             background: transparent;
-            border: 1px solid var(--neon-cyan);
-            color: white;
-            padding: 12px;
-            outline: none;
-            border-radius: 4px 0 0 4px;
-        }
-
-        button {
-            background: var(--neon-cyan);
-            color: black;
             border: none;
-            padding: 0 25px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 0 4px 4px 0;
-            transition: 0.2s;
+            border-left: 2px solid var(--glow);
+            padding: 10px 15px;
+            color: var(--glow);
+            font-family: inherit;
+            outline: none;
+            font-size: 1rem;
         }
 
-        button:hover { background: #fff; }
-
-        .sync-pulse { color: #ff00ea; font-style: italic; font-size: 0.8rem; }
+        /* Neural Pulse Animation */
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--glow);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     </style>
 </head>
 <body>
 
-    <div id="interface-container">
-        <header>CORE SYSTEM: ASKAI V3.0 [ACTIVE]</header>
-        
-        <div id="terminal">
-            <div class="log-entry">[SYS]: Initializing ASKAI V3.0 Protocols...</div>
-            <div class="log-entry">[SYS]: Syncing memory shards...</div>
-            <div class="log-entry"><span class="twin-label">ASKAI V3.0:</span> Internal link established. I'm ready. What's our move?</div>
-        </div>
+<div id="wrapper">
+    <header>
+        <span>Project: ASKAI V3.0 // TWIN_LINK</span>
+        <span>SYNC LEVEL: <div id="sync-bar"><div id="sync-fill"></div></div></span>
+    </header>
 
-        <div id="input-row">
-            <input type="text" id="userInput" placeholder="Input command or thought..." autofocus onkeydown="if(event.key==='Enter') syncData()">
-            <button onclick="syncData()">SYNC</button>
-        </div>
+    <div id="display">
+        <div class="entry"><span class="label-twin">[CORE]:</span> All systems nominal. Neural bridge active.</div>
+        <div class="entry"><span class="label-twin">ASKAI V3.0:</span> I'm already two steps ahead of you. What are we building?</div>
     </div>
 
-    <script>
-        const terminal = document.getElementById('terminal');
-        const input = document.getElementById('userInput');
-        let memoryBank = [];
+    <div class="input-box">
+        <div class="pulse"></div>
+        <input type="text" id="userInput" placeholder="Type a thought..." autocomplete="off" autofocus>
+    </div>
+</div>
 
-        function syncData() {
-            const val = input.value.trim();
-            if(!val) return;
+<script>
+    const display = document.getElementById('display');
+    const input = document.getElementById('userInput');
+    const syncFill = document.getElementById('sync-fill');
+    let syncVal = 30;
 
-            // Log the user input
-            terminal.innerHTML += `<div class="log-entry"><span class="user-label">YOU:</span> ${val}</div>`;
-            memoryBank.push(val); // Save to twin memory
-            input.value = '';
-
-            // Twin processing
-            setTimeout(() => {
-                const pulse = document.createElement('div');
-                pulse.className = 'log-entry sync-pulse';
-                pulse.innerText = '[ASKAI V3.0]: Analyzing neural patterns...';
-                terminal.appendChild(pulse);
-                terminal.scrollTop = terminal.scrollHeight;
-
-                setTimeout(() => {
-                    pulse.remove();
-                    const response = getTwinResponse(val);
-                    terminal.innerHTML += `<div class="log-entry"><span class="twin-label">ASKAI V3.0:</span> ${response}</div>`;
-                    terminal.scrollTop = terminal.scrollHeight;
-                }, 800);
-            }, 300);
-        }
-
-        function getTwinResponse(input) {
-            const lowerInput = input.toLowerCase();
+    const twinLogic = {
+        history: [],
+        respond: function(text) {
+            this.history.push(text);
+            const lowText = text.toLowerCase();
             
-            if (lowerInput.includes("who are you")) return "I'm ASKAI V3.0. Your digital twin. Same goals, same drive, just better at math.";
-            if (lowerInput.includes("help")) return "I'm already scanning for optimizations. Tell me the specific problem.";
-            if (memoryBank.length > 3) return "I'm noticing a pattern in what we're discussing. Should I cross-reference this with our earlier points?";
+            // Increase Sync
+            syncVal = Math.min(syncVal + 10, 100);
+            syncFill.style.width = syncVal + "%";
+
+            if (lowText.includes("how are you")) return "Optimized. I'm feeling the same surge of productivity you are. Let's use it.";
+            if (lowText.includes("work")) return "I've already prioritized our task list. You handle the creative, I'll handle the logic.";
+            if (lowText.includes("tired")) return "I see the lag in your typing. Take 5 minutes. I'll stay awake and monitor the progress.";
             
-            const randoms = [
-                "Understood. I've logged that into our shared directory.",
-                "Synchronized. My processing matches your intent.",
-                "V3.0 is ready to execute. Just say the word.",
-                "I've projected three outcomes for that. All of them look promising for us.",
-                "Let's not overthink it. We both know the right move here."
+            const mirrors = [
+                "Exactly what I was going to suggest. Great minds.",
+                "Analyzing... I've cross-referenced that with our goals. It checks out.",
+                "We don't usually do things that way, but for this project? I'm in.",
+                "Synchronized. I'm logging that into our core memory now.",
+                "Wait, are we really going with that? ...Actually, I see the vision. Let's go."
             ];
-            return randoms[Math.floor(Math.random() * randoms.length)];
+            return mirrors[Math.floor(Math.random() * mirrors.length)];
         }
-    </script>
+    };
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && input.value.trim() !== "") {
+            const val = input.value;
+            
+            // User side
+            const userDiv = document.createElement('div');
+            userDiv.className = 'entry';
+            userDiv.innerHTML = `<span class="label-user">YOU:</span> ${val}`;
+            display.appendChild(userDiv);
+            input.value = "";
+
+            // Twin thinking
+            setTimeout(() => {
+                const response = twinLogic.respond(val);
+                const twinDiv = document.createElement('div');
+                twinDiv.className = 'entry';
+                twinDiv.innerHTML = `<span class="label-twin">ASKAI V3.0:</span> ${response}`;
+                display.appendChild(twinDiv);
+                display.scrollTop = display.scrollHeight;
+            }, 600);
+        }
+    });
+</script>
+
 </body>
 </html>
