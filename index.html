@@ -2,112 +2,84 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Project_ ACT V3.0 | Digital Twin</title>
+    <title>ASKAI V3.0 | Neural Link</title>
+    <link rel="icon" type="image/png" href="your-portfolio-favicon-url.png">
     <style>
-        body {
-            background-color: #0d0d0d;
-            color: #00ff41; /* Matrix/Terminal Green */
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        #terminal {
-            width: 80%;
-            max-width: 700px;
-            height: 500px;
-            border: 1px solid #00ff41;
-            padding: 20px;
-            overflow-y: auto;
-            background: rgba(0, 20, 0, 0.9);
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
-        }
-
-        .log-entry { margin-bottom: 10px; line-height: 1.4; }
-        .twin-name { font-weight: bold; color: #fff; }
-        
-        #input-area {
-            width: 80%;
-            max-width: 700px;
-            margin-top: 10px;
-            display: flex;
-        }
-
-        input {
-            flex-grow: 1;
-            background: black;
-            border: 1px solid #00ff41;
-            color: #00ff41;
-            padding: 10px;
-            outline: none;
-        }
-
-        button {
-            background: #00ff41;
-            color: black;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .syncing { color: yellow; font-style: italic; }
+        :root { --cyan: #00d4ff; --mag: #ff00ff; --bg: #050505; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Inter', sans-serif; color: white; }
+        #starfield { position: fixed; top: 0; left: 0; z-index: -1; }
+        #app { display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #terminal { width: 650px; height: 80vh; background: rgba(10, 10, 15, 0.9); border: 1px solid rgba(0, 212, 255, 0.2); display: flex; flex-direction: column; backdrop-filter: blur(10px); }
+        header { padding: 15px 25px; border-bottom: 1px solid rgba(0, 212, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
+        #feed { flex-grow: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .bubble { max-width: 80%; padding: 12px 18px; border-radius: 4px; font-size: 0.9rem; line-height: 1.5; }
+        .user { align-self: flex-end; border-right: 3px solid var(--mag); background: rgba(255, 0, 255, 0.05); }
+        .twin { align-self: flex-start; border-left: 3px solid var(--cyan); background: rgba(0, 212, 255, 0.05); color: #ccc; }
+        .input-area { padding: 20px; display: flex; gap: 10px; background: rgba(0,0,0,0.3); }
+        input { flex-grow: 1; background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 12px; color: white; outline: none; }
+        button { background: var(--cyan); color: black; border: none; padding: 0 20px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <h2>CORE SYSTEM: PROJECT_ ACT V3.0</h2>
-    
+<canvas id="starfield"></canvas>
+<div id="app">
     <div id="terminal">
-        <div class="log-entry">[SYSTEM]: Booting V3.0...</div>
-        <div class="log-entry">[SYSTEM]: Neural Link Established.</div>
-        <div class="log-entry"><span class="twin-name">ACT V3.0:</span> Connection online. I'm awake. What are we getting into today?</div>
+        <header><div style="color:var(--cyan); font-weight:bold;">ASKAI V3.0</div><div id="status" style="font-size:0.7rem; opacity:0.5;">STANDBY</div></header>
+        <div id="feed"></div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Establish link..." autocomplete="off">
+            <button onclick="sync()">SYNC</button>
+        </div>
     </div>
+</div>
+<script>
+    // Starfield
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    function init() {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        stars = Array.from({length: 150}, () => ({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5, v: Math.random()*0.5}));
+    }
+    function draw() {
+        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle="#fff";
+        stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill(); s.y += s.v; if(s.y > canvas.height) s.y = 0; });
+        requestAnimationFrame(draw);
+    }
+    init(); draw(); window.onresize = init;
 
-    <div id="input-area">
-        <input type="text" id="userInput" placeholder="Type to your twin..." onkeydown="if(event.key==='Enter') sendMessage()">
-        <button onclick="sendMessage()">SYNC</button>
-    </div>
-
-    <script>
-        const terminal = document.getElementById('terminal');
+    // Logic
+    async function sync() {
         const input = document.getElementById('userInput');
+        const val = input.value.trim();
+        if(!val) return;
 
-        const twinResponses = [
-            "I was literally just thinking that. Great minds, right?",
-            "V3.0 optimization suggests we should move faster on this.",
-            "Are you sure? Last time we tried that, it didn't end well. But I'm with you anyway.",
-            "Analyzing... synchronized. Let's execute the plan.",
-            "I've already updated our shared log. We're ahead of schedule."
-        ];
+        addMsg(val, 'user');
+        input.value = '';
+        document.getElementById('status').innerText = "SYNCING...";
 
-        function sendMessage() {
-            const text = input.value;
-            if(!text) return;
-
-            // User message
-            terminal.innerHTML += `<div class="log-entry"><strong>YOU:</strong> ${text}</div>`;
-            input.value = '';
-
-            // Twin Response Logic
-            setTimeout(() => {
-                terminal.innerHTML += `<div class="log-entry syncing">...Synchronizing...</div>`;
-                terminal.scrollTop = terminal.scrollHeight;
-
-                setTimeout(() => {
-                    const randomResponse = twinResponses[Math.floor(Math.random() * twinResponses.length)];
-                    const lastSync = document.querySelector('.syncing');
-                    if(lastSync) lastSync.remove();
-                    
-                    terminal.innerHTML += `<div class="log-entry"><span class="twin-name">ACT V3.0:</span> ${randomResponse}</div>`;
-                    terminal.scrollTop = terminal.scrollHeight;
-                }, 1000);
-            }, 500);
+        try {
+            const res = await fetch('/api/sync', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt: val })
+            });
+            const data = await res.json();
+            addMsg(data.text, 'twin');
+            document.getElementById('status').innerText = "ACTIVE";
+        } catch (e) {
+            addMsg("Link failed.", 'twin');
         }
-    </script>
+    }
+    function addMsg(txt, cls) {
+        const d = document.createElement('div');
+        d.className = `bubble ${cls}`;
+        d.innerText = txt;
+        const f = document.getElementById('feed');
+        f.appendChild(d);
+        f.scrollTop = f.scrollHeight;
+    }
+    document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key==='Enter') sync(); });
+</script>
 </body>
 </html>
