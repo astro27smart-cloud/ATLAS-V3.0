@@ -3,43 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.X.I.S. My Twin | AI Twin </title>
+    <title>A.X.I.S. | Neural Link</title>
     <style>
-        :root { --cyan: #004F98; --mag: #900D09; --bg: #020205; --glass: rgba(10, 10, 15, 0.95); }
+        :root { 
+            --accent: #ffffff; 
+            --dim: #444444; 
+            --bg: #000000; 
+            --glass: rgba(10, 10, 10, 0.98); 
+        }
+        
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Inter', sans-serif; color: white; display: flex; }
-        #starfield { position: moving; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; background: radial-gradient(circle at center, #0a0a20 0%, #020205 100%); }
-        
-        /* Sidebar */
-        #sidebar { width: 280px; background: rgba(0, 0, 0, 0.9); border-right: 1px solid rgba(0, 212, 255, 0.1); display: flex; flex-direction: column; backdrop-filter: blur(20px); z-index: 10; }
+        #starfield { position: fixed; top: 0; left: 0; z-index: -1; width: 100vw; height: 100vh; }
+
+        /* Sidebar - Monochrome */
+        #sidebar { width: 280px; background: rgba(0, 0, 0, 0.95); border-right: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; backdrop-filter: blur(20px); z-index: 10; }
         .nav-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px; }
-        #new-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--cyan); color: var(--cyan); cursor: pointer; font-weight: bold; transition: 0.3s; }
-        #new-btn:hover { background: var(--cyan); color: black; }
+        #new-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--accent); color: var(--accent); cursor: pointer; font-weight: bold; transition: 0.3s; letter-spacing: 1px; }
+        #new-btn:hover { background: var(--accent); color: black; }
         
-        /* Core Data Trigger */
-        #mem-trigger { font-size: 0.7rem; color: var(--mag); cursor: pointer; text-align: center; margin-top: 10px; letter-spacing: 1px; opacity: 0.7; transition: 0.3s; }
-        #mem-trigger:hover { opacity: 1; text-shadow: 0 0 10px var(--mag); }
+        #mem-trigger { font-size: 0.7rem; color: var(--accent); cursor: pointer; text-align: center; margin-top: 10px; letter-spacing: 2px; opacity: 0.5; transition: 0.3s; }
+        #mem-trigger:hover { opacity: 1; }
 
         #chat-list { flex-grow: 1; overflow-y: auto; padding: 15px; }
-        .chat-item { padding: 12px; margin-bottom: 8px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; background: rgba(255,255,255,0.02); display: flex; justify-content: space-between; align-items: center; border-left: 2px solid transparent; }
-        .chat-item.active { border-left-color: var(--cyan); background: rgba(0, 212, 255, 0.05); }
+        .chat-item { padding: 12px; margin-bottom: 8px; border-radius: 2px; font-size: 0.8rem; cursor: pointer; background: rgba(255,255,255,0.03); display: flex; justify-content: space-between; border: 1px solid transparent; }
+        .chat-item.active { border-color: var(--accent); background: rgba(255, 255, 255, 0.05); }
 
         /* Main Terminal */
         #app { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
-        #terminal { width: 92%; height: 88vh; background: var(--glass); border: 1px solid rgba(0, 212, 255, 0.1); display: flex; flex-direction: column; }
-        #feed { flex-grow: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .bubble { max-width: 80%; padding: 15px 20px; border-radius: 2px; font-size: 0.95rem; line-height: 1.5; }
-        .user { align-self: flex-end; border-right: 3px solid var(--mag); background: rgba(255, 0, 255, 0.02); }
-        .twin { align-self: flex-start; border-left: 3px solid var(--cyan); background: rgba(0, 212, 255, 0.02); }
-        .input-area { padding: 25px; display: flex; gap: 10px; background: rgba(0,0,0,0.3); }
-        input { flex-grow: 1; background: transparent; border: 1px solid #333; padding: 15px; color: white; outline: none; }
+        #terminal { width: 94%; height: 90vh; background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; }
+        #feed { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
+        
+        .bubble { max-width: 75%; padding: 15px 20px; font-size: 0.9rem; line-height: 1.6; border-radius: 0; }
+        .user { align-self: flex-end; background: white; color: black; border: 1px solid white; }
+        .twin { align-self: flex-start; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.02); }
+        
+        .input-area { padding: 30px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); }
+        input { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; padding: 10px 0; color: white; outline: none; font-size: 1rem; transition: 0.3s; }
+        input:focus { border-bottom-color: white; }
 
         /* Memory Modal */
-        #mem-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        #mem-box { width: 500px; background: #050505; border: 1px solid var(--mag); padding: 30px; box-shadow: 0 0 50px rgba(255, 0, 255, 0.1); }
-        #mem-area { width: 100%; height: 300px; background: #000; color: var(--cyan); border: 1px solid #222; padding: 15px; font-family: monospace; font-size: 0.8rem; margin: 15px 0; outline: none; box-sizing: border-box; }
-        .mem-btns { display: flex; justify-content: space-between; }
-        .close-btn { background: #222; color: white; border: none; padding: 10px 20px; cursor: pointer; }
-        .save-btn { background: var(--mag); color: black; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        #mem-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        #mem-box { width: 500px; background: #000; border: 1px solid #333; padding: 40px; }
+        #mem-area { width: 100%; height: 300px; background: #000; color: #fff; border: 1px solid #222; padding: 15px; font-family: monospace; outline: none; }
+        .save-btn { background: white; color: black; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; }
+        .close-btn { background: #222; color: white; border: none; padding: 12px 25px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -47,32 +54,31 @@
 
 <div id="mem-modal">
     <div id="mem-box">
-        <h2 style="color:var(--mag); margin-top:0; font-size: 1rem; letter-spacing: 2px;">CORE DATA REPOSITORY</h2>
-        <p style="font-size: 0.7rem; opacity: 0.6;">All extracted details and permanent instructions are stored here.</p>
+        <h2 style="color:white; margin-top:0; font-size: 0.9rem; letter-spacing: 4px; border-bottom: 1px solid #222; padding-bottom: 10px;">CORE DATA REPOSITORY</h2>
         <textarea id="mem-area"></textarea>
-        <div class="mem-btns">
+        <div style="display:flex; justify-content: space-between;">
             <button class="close-btn" onclick="toggleMem()">CLOSE</button>
-            <button class="save-btn" onclick="saveManualMem()">COMMIT TO CORE</button>
+            <button class="save-btn" onclick="saveManualMem()">COMMIT</button>
         </div>
     </div>
 </div>
 
 <div id="sidebar">
     <div class="nav-header">
-        <button id="new-btn" onclick="startFresh()">+ NEW NEURAL LINK</button>
-        <div id="mem-trigger" onclick="toggleMem()">[ ACCESS CORE DATA ]</div>
+        <button id="new-btn" onclick="startFresh()">+ INITIALIZE LINK</button>
+        <div id="mem-trigger" onclick="toggleMem()">[ VIEW CORE DATA ]</div>
     </div>
     <div id="chat-list"></div>
 </div>
 
 <div id="app">
     <div id="terminal">
-        <header style="padding: 15px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between;">
-            <div style="color: var(--cyan); font-weight: bold; letter-spacing: 3px;">ATLAS V3.0</div>
-            <div id="status" style="font-size: 0.7rem; opacity: 0.5;">SYNCED</div>
+        <header style="padding: 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <div style="color: white; font-weight: bold; letter-spacing: 5px; font-size: 1.1rem;">A.X.I.S.</div>
+            <div id="status" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4;">STATUS: OPERATIONAL</div>
         </header>
         <div id="feed"></div>
-        <div class="input-area"><input type="text" id="userInput" placeholder="Type a message..." autocomplete="off"></div>
+        <div class="input-area"><input type="text" id="userInput" placeholder="Send pulse..." autocomplete="off"></div>
     </div>
 </div>
 
@@ -80,25 +86,43 @@
     const canvas = document.getElementById('starfield');
     const ctx = canvas.getContext('2d');
     let stars = [];
-    function init() {
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        stars = Array.from({length: 150}, () => ({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5, v: Math.random()*0.4}));
-    }
-    function draw() {
-        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle="#fff";
-        stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI*2); ctx.fill(); s.y += s.v; if(s.y > canvas.height) s.y = 0; });
-        requestAnimationFrame(draw);
-    }
-    init(); draw();
 
-    let chats = JSON.parse(localStorage.getItem('atlas_v3_data')) || [];
-    let globalMemory = localStorage.getItem('atlas_permanent_memory') || "The user is the primary operator.";
+    function initStars() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars = Array.from({length: 250}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.2,
+            speed: Math.random() * 0.4 + 0.1
+        }));
+    }
+
+    function animateStars() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "white";
+        stars.forEach(s => {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+            s.y += s.speed;
+            if (s.y > canvas.height) s.y = 0;
+        });
+        requestAnimationFrame(animateStars);
+    }
+
+    window.addEventListener('resize', initStars);
+    initStars();
+    animateStars();
+
+    let chats = JSON.parse(localStorage.getItem('axis_data')) || [];
+    let globalMemory = localStorage.getItem('axis_memory') || "A.X.I.S. initialized. User is primary operator.";
     let activeId = null;
 
     function save() {
-        localStorage.setItem('atlas_v3_data', JSON.stringify(chats));
-        localStorage.setItem('atlas_permanent_memory', globalMemory);
-        render();
+        localStorage.setItem('axis_data', JSON.stringify(chats));
+        localStorage.setItem('axis_memory', globalMemory);
+        renderSidebar();
     }
 
     function toggleMem() {
@@ -111,35 +135,34 @@
         globalMemory = document.getElementById('mem-area').value;
         save();
         toggleMem();
-        document.getElementById('status').innerText = "CORE DATA REWRITTEN";
     }
 
     function startFresh() {
         activeId = null;
         document.getElementById('feed').innerHTML = '';
-        render();
+        renderSidebar();
     }
 
-    function render() {
+    function renderSidebar() {
         const list = document.getElementById('chat-list');
         list.innerHTML = '';
         chats.forEach(c => {
             const el = document.createElement('div');
             el.className = `chat-item ${c.id === activeId ? 'active' : ''}`;
-            el.innerHTML = `<span onclick="load(${c.id})">${c.name}</span> <span onclick="remove(${c.id})" style="opacity:0.3">×</span>`;
+            el.innerHTML = `<span style="flex:1" onclick="loadChat(${c.id})">${c.name}</span> <span onclick="removeChat(${c.id})" style="opacity:0.2">×</span>`;
             list.appendChild(el);
         });
     }
 
-    function load(id) {
+    function loadChat(id) {
         activeId = id;
         const chat = chats.find(c => c.id === id);
         document.getElementById('feed').innerHTML = '';
         chat.history.forEach(m => addUI(m.text, m.role));
-        render();
+        renderSidebar();
     }
 
-    function remove(id) {
+    function removeChat(id) {
         chats = chats.filter(c => c.id !== id);
         if(activeId === id) startFresh();
         save();
@@ -149,51 +172,35 @@
         const input = document.getElementById('userInput');
         const text = input.value.trim();
         const status = document.getElementById('status');
-        
         if(!text) return;
-    
+
         if(activeId === null) {
             activeId = Date.now();
-            chats.unshift({ id: activeId, name: "New Sync", history: [] });
+            chats.unshift({ id: activeId, name: "Neural Sync", history: [] });
         }
-    
+
         const chat = chats.find(c => c.id === activeId);
-        addUI(text, 'user'); // Your message appears immediately
+        addUI(text, 'user');
         chat.history.push({ role: 'user', text });
         input.value = '';
-        
-        status.innerText = "THINKING..."; // This should change back once he responds
-    
+        status.innerText = "STATUS: SYNCING...";
+
         try {
             const res = await fetch('/api/sync', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    prompt: text, 
-                    history: chat.history, 
-                    globalMemory: globalMemory 
-                })
+                body: JSON.stringify({ prompt: text, history: chat.history, globalMemory: globalMemory, generateTitle: chat.history.length < 3 })
             });
-    
-            if (!res.ok) throw new Error('Server Down');
-    
+
             const data = await res.json();
+            if (data.memoryUpdate) globalMemory += ` | ${data.memoryUpdate}`;
+            if (data.title) chat.name = data.title;
             
-            // Update the status and handle the memory
-            status.innerText = data.memoryUpdate ? "CORE UPDATED" : "STABLE";
-            if (data.memoryUpdate) {
-                globalMemory += ` | ${data.memoryUpdate}`;
-            }
-    
-            // SHOW THE ACTUAL RESPONSE
+            status.innerText = "STATUS: STABLE";
             addUI(data.text, 'twin'); 
             chat.history.push({ role: 'twin', text: data.text });
             save();
-    
-        } catch (e) { 
-            status.innerText = "LINK SEVERED";
-            addUI("SYSTEM ERROR: I can't reach the backend. Check if your API key is set and the server is running.", 'twin'); 
-        }
+        } catch (e) { status.innerText = "STATUS: SEVERED"; }
     }
 
     function addUI(txt, cls) {
@@ -206,7 +213,7 @@
     }
 
     document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sync(); });
-    if(chats.length > 0) load(chats[0].id);
+    if(chats.length > 0) loadChat(chats[0].id);
 </script>
 </body>
 </html>
