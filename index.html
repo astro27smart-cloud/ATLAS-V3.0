@@ -235,6 +235,164 @@ header {
 
     document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sync(); });
     if(chats.length > 0) loadChat(chats[0].id);
+</script> <script>
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function initStars() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars = Array.from({length: 250}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.2,
+            speed: Math.random() * 0.4 + 0.1
+        }));
+    }
+
+    function animateStars() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "white";
+        stars.forEach(s => {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+            s.y += s.speed;
+            if (s.y > canvas.height) s.y = 0;
+        });
+        requestAnimationFrame(animateStars);
+    }
+
+    window.addEventListener('resize', initStars);
+    initStars();
+    animateStars();
+
+    // Data Management
+    let chats = JSON.parse(localStorage.getItem('axis_data')) || [];
+    let globalMemory = localStorage.getItem('axis_memory') || "A.X.I.S. (Advanced X-dimensional Identity Shadow) initialized.";
+    let activeId = null; // Start as null
+
+    function save() {
+        localStorage.setItem('axis_data', JSON.stringify(chats));
+        localStorage.setItem('axis_memory', globalMemory);
+        renderSidebar();
+    }
+
+    function toggleMem() {
+        const modal = document.getElementById('mem-modal');
+        document.getElementById('mem-area').value = globalMemory;
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function saveManualMem() {
+        globalMemory = document.getElementById('mem-area').value;
+        save();
+        toggleMem();
+    }
+
+    // Force clear the current active feed and ID
+    function startFresh() {
+        activeId = null;
+        document.getElementById('feed').innerHTML = '';
+        document.getElementById('status').innerText = "SHADOW_SYNC: STABLE";
+        renderSidebar();
+    }
+
+    function renderSidebar() {
+        const list = document.getElementById('chat-list');
+        list.innerHTML = '';
+        chats.forEach(c => {
+            const el = document.createElement('div');
+            el.className = `chat-item ${c.id === activeId ? 'active' : ''}`;
+            el.innerHTML = `<span style="flex:1" onclick="loadChat(${c.id})">${c.name}</span> <span onclick="removeChat(${c.id})" style="opacity:0.2">×</span>`;
+            list.appendChild(el);
+        });
+    }
+
+    function loadChat(id) {
+        activeId = id;
+        const chat = chats.find(c => c.id === id);
+        document.getElementById('feed').innerHTML = '';
+        chat.history.forEach(m => addUI(m.text, m.role));
+        renderSidebar();
+    }
+
+    function removeChat(id) {
+        chats = chats.filter(c => c.id !== id);
+        if(activeId === id) startFresh();
+        save();
+    }
+
+    async function sync() {
+        const input = document.getElementById('userInput');
+        const text = input.value.trim();
+        const status = document.getElementById('status');
+        if(!text) return;
+
+        // If no active chat, create one now
+        if(activeId === null) {
+            activeId = Date.now();
+            chats.unshift({ id: activeId, name: "New Sync", history: [] });
+        }
+
+        const chat = chats.find(c => c.id === activeId);
+        addUI(text, 'user');
+        chat.history.push({ role: 'user', text });
+        input.value = '';
+        status.innerText = "SHADOW_SYNC: PROCESSING...";
+
+        try {
+            const res = await fetch('/api/sync', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    prompt: text, 
+                    history: chat.history, 
+                    globalMemory: globalMemory, 
+                    generateTitle: chat.history.length < 3,
+                    identity: "Advanced X-dimensional Identity Shadow"
+                })
+            });
+
+            const data = await res.json();
+            if (data.memoryUpdate) globalMemory += ` | ${data.memoryUpdate}`;
+            if (data.title) chat.name = data.title;
+            
+            status.innerText = "SHADOW_SYNC: STABLE";
+            addUI(data.text, 'twin'); 
+            chat.history.push({ role: 'twin', text: data.text });
+            save();
+        } catch (e) { status.innerText = "SHADOW_SYNC: SEVERED"; }
+    }
+
+    function addUI(txt, cls) {
+        const f = document.getElementById('feed');
+        const d = document.createElement('div');
+        d.className = `bubble ${cls}`;
+
+        const imgRegex = /\.(jpeg|jpg|gif|png|webp)$/i;
+        const vidRegex = /\.(mp4|webm|ogg)$/i;
+
+        if (imgRegex.test(txt)) {
+            d.innerHTML = `<img src="${txt}" alt="Visual Sync Error">`;
+        } else if (vidRegex.test(txt)) {
+            d.innerHTML = `<video src="${txt}" controls></video>`;
+        } else {
+            d.innerText = txt;
+        }
+
+        f.appendChild(d);
+        f.scrollTop = f.scrollHeight;
+    }
+
+    document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sync(); });
+
+    // THE FIX: Reset everything to null on load and ensure the UI shows nothing.
+    window.onload = () => {
+        startFresh();
+        renderSidebar();
+    };
 </script>
 </body>
 </html>
