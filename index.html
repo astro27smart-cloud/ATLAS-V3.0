@@ -112,6 +112,7 @@
             <a href="https://runwayml.com" target="_blank" class="gate-btn">RUNWAY</a>
             <a href="https://sora.com" target="_blank" class="gate-btn">SORA</a>
         </div>
+        
         <div class="section-label">Identity Core</div>
         <div class="core-btn-group">
             <button class="action-btn" onclick="startFresh()">+ Initialize_Pulse</button>
@@ -261,6 +262,35 @@ function toggleDots(id) {
         f.appendChild(d);
         f.scrollTop = f.scrollHeight;
     }
+    // --- PASTE THIS HERE (Around line 265) ---
+
+// This opens the Core Database window
+function openDB() { 
+    const modal = document.getElementById('db-modal');
+    if(modal) modal.style.display = 'flex'; 
+}
+
+// This closes the Core Database window
+function closeDB() { 
+    const modal = document.getElementById('db-modal');
+    if(modal) modal.style.display = 'none'; 
+}
+
+// This handles the 3 dots (⋮) menu for your chats
+function toggleDots(id) {
+    const tray = document.getElementById(`tray-${id}`);
+    // Close any other open menus
+    document.querySelectorAll('.chat-controls').forEach(t => { 
+        if(t !== tray) t.classList.remove('visible'); 
+    });
+    // Toggle the one you clicked
+    if(tray) tray.classList.toggle('visible');
+}
+
+// --- STOP PASTING HERE ---
+
+document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sync(); });
+window.onload = startFresh;
 
     document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sync(); });
     window.onload = startFresh;
