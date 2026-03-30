@@ -6,34 +6,31 @@
     <title>A.X.I.S. | Identity Shadow</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style> 
-        /* This controls the container for your buttons */
-.core-btn-group {
-    display: flex;
-    flex-direction: column;
+       /* 1. This hides the Pin/Edit/Delete icons by default */
+.chat-controls {
+    display: none; 
     gap: 10px;
-    padding: 10px 0;
+    background: #111;
+    padding: 5px;
+    border: 1px solid #333;
+    position: absolute;
+    right: 40px;
+    z-index: 99;
 }
 
-/* This makes the buttons look like sleek terminal triggers instead of giant boxes */
-.action-btn {
-    width: 100%;             /* Fills the sidebar width, but not the whole screen */
-    max-width: 280px;        /* Keeps it from getting too wide */
-    padding: 12px;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+/* 2. This is the COMMAND that shows them when you click the dots */
+.chat-controls.visible {
+    display: flex !important;
+}
+
+/* 3. This styles the 3 dots themselves */
+.core-menu-dots {
     cursor: pointer;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-size: 0.65rem;      /* Small, techy font size */
-    transition: 0.3s;
-    margin: 0 auto;          /* Centers it */
+    color: #555;
+    font-size: 1.2rem;
+    padding: 0 10px;
 }
-
-.action-btn:hover {
-    background: white;
-    color: black;
-}
+.core-menu-dots:hover { color: white; }
 
 /* This ensures the 'Identity Root' button looks slightly different/dimmer */
 #db-btn {
