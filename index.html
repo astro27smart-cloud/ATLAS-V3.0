@@ -3,383 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.X.I.S. | My AI twin</title>
-    <style> /* Replace your existing header and logo styles with these */
-header {
-    padding: 40px;
-    display: flex;
-    justify-content: center; 
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-}
-
-.logo {
-    font-weight: 900;
-    letter-spacing: 15px; 
-    font-size: 1.4rem;
-    color: #ffffff;
-    text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(255,255,255,0.5);
-    animation: identityPulse 6s infinite ease-in-out;
-}
-
-@keyframes identityPulse {
-    0%, 100% { opacity: 0.8; letter-spacing: 15px; filter: blur(0px); }
-    50% { opacity: 1; letter-spacing: 18px; filter: blur(1px); }
-}
+    <title>A.X.I.S. | Identity Shadow</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style> 
         :root { 
             --accent: #ffffff; 
-            --dim: #444444; 
-            --bg: #000000; 
-            --glass: rgba(10, 10, 10, 0.98); 
+            --bg: #050505; 
+            --glass: rgba(10, 10, 10, 0.85); 
+            --border: rgba(255, 255, 255, 0.08);
+            --dim-gate: rgba(255, 255, 255, 0.03);
         }
-        
+
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Inter', sans-serif; color: white; display: flex; }
-        #starfield { position: fixed; top: 0; left: 0; z-index: -1; width: 100vw; height: 100vh; }
+        #starfield { position: fixed; top: 0; left: 0; z-index: -1; width: 100vw; height: 100vh; opacity: 0.4; }
 
-        /* Sidebar - Monochrome */
-        #sidebar { width: 280px; background: rgba(0, 0, 0, 0.95); border-right: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; backdrop-filter: blur(20px); z-index: 10; }
-        .nav-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px; }
-        #new-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--accent); color: var(--accent); cursor: pointer; font-weight: bold; transition: 0.3s; letter-spacing: 1px; }
-        #new-btn:hover { background: var(--accent); color: black; }
+        /* Sidebar & Dimension Gates */
+        #sidebar { width: 280px; background: rgba(0, 0, 0, 0.9); border-right: 1px solid var(--border); display: flex; flex-direction: column; backdrop-filter: blur(15px); z-index: 10; }
         
-        #mem-trigger { font-size: 0.7rem; color: var(--accent); cursor: pointer; text-align: center; margin-top: 10px; letter-spacing: 2px; opacity: 0.5; transition: 0.3s; }
-        #mem-trigger:hover { opacity: 1; }
+        .nav-header { padding: 20px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--border); }
+        
+        .section-label { font-size: 0.55rem; letter-spacing: 3px; color: #444; text-transform: uppercase; margin-bottom: 5px; margin-top: 10px; }
 
-        #chat-list { flex-grow: 1; overflow-y: auto; padding: 15px; }
-        .chat-item { padding: 12px; margin-bottom: 8px; border-radius: 2px; font-size: 0.8rem; cursor: pointer; background: rgba(255,255,255,0.03); display: flex; justify-content: space-between; border: 1px solid transparent; }
-        .chat-item.active { border-color: var(--accent); background: rgba(255, 255, 255, 0.05); }
+        .gate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        
+        .gate-btn { 
+            background: var(--dim-gate); border: 1px solid rgba(255,255,255,0.05); 
+            color: #888; padding: 10px; font-size: 0.6rem; cursor: pointer; 
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+            text-align: center; text-decoration: none;
+        }
+        .gate-btn:hover { background: white; color: black; border-color: white; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
 
-        /* Main Terminal */
-        #app { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
-        #terminal { width: 94%; height: 90vh; background: var(--glass); border: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; }
-        #feed { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
+        #new-btn { 
+            width: 100%; padding: 12px; background: transparent; 
+            border: 1px solid rgba(255,255,255,0.3); color: white; 
+            cursor: pointer; letter-spacing: 2px; text-transform: uppercase; 
+            font-size: 0.7rem; transition: 0.3s; 
+        }
+        #new-btn:hover { background: white; color: black; }
+
+        /* App Layout */
+        #app { flex-grow: 1; display: flex; justify-content: center; align-items: center; z-index: 6; }
+        #terminal { width: 90%; height: 85vh; background: var(--glass); border: 1px solid var(--border); display: flex; flex-direction: column; backdrop-filter: blur(10px); }
+
+        header { padding: 40px 20px 20px; display: flex; justify-content: center; }
+        .logo { font-weight: 900; letter-spacing: 15px; font-size: 1.4rem; text-transform: uppercase; animation: pulse 6s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+        #feed { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 30px; }
+
+        /* Messages */
+        .bubble { max-width: 80%; font-size: 0.95rem; line-height: 1.6; }
+        .twin { align-self: flex-start; color: #ddd; }
+        .user { align-self: flex-end; color: #fff; background: rgba(255,255,255,0.05); padding: 15px 20px; border-right: 2px solid white; }
         
-        .bubble { max-width: 75%; padding: 15px 20px; font-size: 0.9rem; line-height: 1.6; border-radius: 0; }
-        .user { align-self: flex-end; background: white; color: black; border: 1px solid white; }
-        .twin { align-self: flex-start; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.02); }
-        
-        .input-area { padding: 30px; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); }
-        input { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; padding: 10px 0; color: white; outline: none; font-size: 1rem; transition: 0.3s; }
+        .bubble pre { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 15px; margin: 15px 0; border-radius: 4px; overflow-x: auto;}
+        .bubble code { font-family: monospace; color: #eee; }
+        .bubble img, .bubble video { width: 100%; margin-top: 15px; border: 1px solid #222; }
+
+        .input-area { padding: 40px; border-top: 1px solid var(--border); }
+        input { width: 100%; background: transparent; border: none; border-bottom: 1px solid #222; padding: 10px 0; color: white; outline: none; font-size: 1rem; transition: 0.5s; }
         input:focus { border-bottom-color: white; }
 
-        /* Memory Modal */
-        #mem-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        #mem-box { width: 500px; background: #000; border: 1px solid #333; padding: 40px; }
-        #mem-area { width: 100%; height: 300px; background: #000; color: #fff; border: 1px solid #222; padding: 15px; font-family: monospace; outline: none; }
-        .save-btn { background: white; color: black; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; }
-        .close-btn { background: #222; color: white; border: none; padding: 12px 25px; cursor: pointer; }
+        #chat-list { flex-grow: 1; overflow-y: auto; padding: 10px 20px; }
     </style>
 </head>
 <body>
 <canvas id="starfield"></canvas>
 
-<div id="mem-modal">
-    <div id="mem-box">
-        <h2 style="color:white; margin-top:0; font-size: 0.9rem; letter-spacing: 4px; border-bottom: 1px solid #222; padding-bottom: 10px;">CORE DATA REPOSITORY</h2>
-        <textarea id="mem-area"></textarea>
-        <div style="display:flex; justify-content: space-between;">
-            <button class="close-btn" onclick="toggleMem()">CLOSE</button>
-            <button class="save-btn" onclick="saveManualMem()">COMMIT</button>
-        </div>
-    </div>
-</div>
-
 <div id="sidebar">
     <div class="nav-header">
-        <button id="new-btn" onclick="startFresh()">+ INITIALIZE LINK</button>
-        <div id="mem-trigger" onclick="toggleMem()">[ VIEW CORE DATA ]</div>
+        <div class="section-label">Dimension Gates</div>
+        <div class="gate-grid">
+            <a href="https://openai.com/dall-e-3" target="_blank" class="gate-btn">DALL-E</a>
+            <a href="https://midjourney.com" target="_blank" class="gate-btn">Midjourney</a>
+            <a href="https://runwayml.com" target="_blank" class="gate-btn">Runway</a>
+            <a href="https://sora.com" target="_blank" class="gate-btn">Sora</a>
+        </div>
+        
+        <div class="section-label">Identity Core</div>
+        <button id="new-btn" onclick="startFresh()">Initialize Link</button>
     </div>
     <div id="chat-list"></div>
 </div>
 
 <div id="app">
     <div id="terminal">
-        <header style="padding: 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
-            <div style="color: white; font-weight: bold; letter-spacing: 5px; font-size: 1.1rem;">A.X.I.S.</div>
-            <div id="status" style="font-size: 0.6rem; letter-spacing: 2px; opacity: 0.4;">STATUS: OPERATIONAL</div>
-        </header>
+        <header><div class="logo">A.X.I.S.</div></header>
         <div id="feed"></div>
-        <div class="input-area"><input type="text" id="userInput" placeholder="Send pulse..." autocomplete="off"></div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Input pulse..." autocomplete="off">
+        </div>
     </div>
 </div>
 
 <script>
+    // Starfield Logic
     const canvas = document.getElementById('starfield');
     const ctx = canvas.getContext('2d');
     let stars = [];
-
     function initStars() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        stars = Array.from({length: 250}, () => ({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 1.2,
-            speed: Math.random() * 0.4 + 0.1
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        stars = Array.from({length: 200}, () => ({
+            x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+            size: Math.random() * 1.5, speed: Math.random() * 0.2
         }));
     }
-
     function animateStars() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#050505"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "white";
         stars.forEach(s => {
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-            ctx.fill();
-            s.y += s.speed;
-            if (s.y > canvas.height) s.y = 0;
+            ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
+            s.y += s.speed; if (s.y > canvas.height) s.y = 0;
         });
         requestAnimationFrame(animateStars);
     }
-
-    window.addEventListener('resize', initStars);
-    initStars();
-    animateStars();
+    initStars(); animateStars();
 
     let chats = JSON.parse(localStorage.getItem('axis_data')) || [];
-    let globalMemory = localStorage.getItem('axis_memory') || "A.X.I.S. initialized. User is primary operator.";
     let activeId = null;
 
-    function save() {
-        localStorage.setItem('axis_data', JSON.stringify(chats));
-        localStorage.setItem('axis_memory', globalMemory);
-        renderSidebar();
-    }
-
-    function toggleMem() {
-        const modal = document.getElementById('mem-modal');
-        document.getElementById('mem-area').value = globalMemory;
-        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    function saveManualMem() {
-        globalMemory = document.getElementById('mem-area').value;
-        save();
-        toggleMem();
-    }
-
     function startFresh() {
-        activeId = null;
-        document.getElementById('feed').innerHTML = '';
+        activeId = null; document.getElementById('feed').innerHTML = '';
         renderSidebar();
     }
 
     function renderSidebar() {
-        const list = document.getElementById('chat-list');
-        list.innerHTML = '';
-        chats.forEach(c => {
+        const list = document.getElementById('chat-list'); list.innerHTML = '<div class="section-label">Memory Fragments</div>';
+        chats.slice(0, 10).forEach(c => {
             const el = document.createElement('div');
-            el.className = `chat-item ${c.id === activeId ? 'active' : ''}`;
-            el.innerHTML = `<span style="flex:1" onclick="loadChat(${c.id})">${c.name}</span> <span onclick="removeChat(${c.id})" style="opacity:0.2">×</span>`;
+            el.style = "padding: 12px 0; font-size: 0.65rem; color: #444; cursor: pointer; border-bottom: 1px solid #111; text-transform: uppercase; letter-spacing: 1px;";
+            el.innerText = c.name; el.onclick = () => loadChat(c.id);
             list.appendChild(el);
         });
     }
 
     function loadChat(id) {
-        activeId = id;
-        const chat = chats.find(c => c.id === id);
+        activeId = id; const chat = chats.find(c => c.id === id);
         document.getElementById('feed').innerHTML = '';
         chat.history.forEach(m => addUI(m.text, m.role));
-        renderSidebar();
-    }
-
-    function removeChat(id) {
-        chats = chats.filter(c => c.id !== id);
-        if(activeId === id) startFresh();
-        save();
     }
 
     async function sync() {
         const input = document.getElementById('userInput');
         const text = input.value.trim();
-        const status = document.getElementById('status');
         if(!text) return;
-
-        if(activeId === null) {
+        if(!activeId) {
             activeId = Date.now();
-            chats.unshift({ id: activeId, name: "Neural Sync", history: [] });
+            chats.unshift({ id: activeId, name: text.substring(0, 15), history: [] });
         }
-
         const chat = chats.find(c => c.id === activeId);
         addUI(text, 'user');
         chat.history.push({ role: 'user', text });
         input.value = '';
-        status.innerText = "STATUS: SYNCING...";
 
         try {
             const res = await fetch('/api/sync', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ prompt: text, history: chat.history, globalMemory: globalMemory, generateTitle: chat.history.length < 3 })
+                body: JSON.stringify({ prompt: text, history: chat.history })
             });
-
             const data = await res.json();
-            if (data.memoryUpdate) globalMemory += ` | ${data.memoryUpdate}`;
-            if (data.title) chat.name = data.title;
-            
-            status.innerText = "STATUS: STABLE";
             addUI(data.text, 'twin'); 
             chat.history.push({ role: 'twin', text: data.text });
-            save();
-        } catch (e) { status.innerText = "STATUS: SEVERED"; }
-    }
-
-    function addUI(txt, cls) {
-        const d = document.createElement('div');
-        d.className = `bubble ${cls}`;
-        d.innerText = txt;
-        const f = document.getElementById('feed');
-        f.appendChild(d);
-        f.scrollTop = f.scrollHeight;
-    }
-
-    document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sync(); });
-    if(chats.length > 0) loadChat(chats[0].id);
-</script> <script>
-    const canvas = document.getElementById('starfield');
-    const ctx = canvas.getContext('2d');
-    let stars = [];
-
-    function initStars() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        stars = Array.from({length: 250}, () => ({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 1.2,
-            speed: Math.random() * 0.4 + 0.1
-        }));
-    }
-
-    function animateStars() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "white";
-        stars.forEach(s => {
-            ctx.beginPath();
-            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-            ctx.fill();
-            s.y += s.speed;
-            if (s.y > canvas.height) s.y = 0;
-        });
-        requestAnimationFrame(animateStars);
-    }
-
-    window.addEventListener('resize', initStars);
-    initStars();
-    animateStars();
-
-    // Data Management
-    let chats = JSON.parse(localStorage.getItem('axis_data')) || [];
-    let globalMemory = localStorage.getItem('axis_memory') || "A.X.I.S. (Advanced X-dimensional Identity Shadow) initialized.";
-    let activeId = null; // Start as null
-
-    function save() {
-        localStorage.setItem('axis_data', JSON.stringify(chats));
-        localStorage.setItem('axis_memory', globalMemory);
-        renderSidebar();
-    }
-
-    function toggleMem() {
-        const modal = document.getElementById('mem-modal');
-        document.getElementById('mem-area').value = globalMemory;
-        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-    }
-
-    function saveManualMem() {
-        globalMemory = document.getElementById('mem-area').value;
-        save();
-        toggleMem();
-    }
-
-    // Force clear the current active feed and ID
-    function startFresh() {
-        activeId = null;
-        document.getElementById('feed').innerHTML = '';
-        document.getElementById('status').innerText = "SHADOW_SYNC: STABLE";
-        renderSidebar();
-    }
-
-    function renderSidebar() {
-        const list = document.getElementById('chat-list');
-        list.innerHTML = '';
-        chats.forEach(c => {
-            const el = document.createElement('div');
-            el.className = `chat-item ${c.id === activeId ? 'active' : ''}`;
-            el.innerHTML = `<span style="flex:1" onclick="loadChat(${c.id})">${c.name}</span> <span onclick="removeChat(${c.id})" style="opacity:0.2">×</span>`;
-            list.appendChild(el);
-        });
-    }
-
-    function loadChat(id) {
-        activeId = id;
-        const chat = chats.find(c => c.id === id);
-        document.getElementById('feed').innerHTML = '';
-        chat.history.forEach(m => addUI(m.text, m.role));
-        renderSidebar();
-    }
-
-    function removeChat(id) {
-        chats = chats.filter(c => c.id !== id);
-        if(activeId === id) startFresh();
-        save();
-    }
-
-    async function sync() {
-        const input = document.getElementById('userInput');
-        const text = input.value.trim();
-        const status = document.getElementById('status');
-        if(!text) return;
-
-        // If no active chat, create one now
-        if(activeId === null) {
-            activeId = Date.now();
-            chats.unshift({ id: activeId, name: "New Sync", history: [] });
+            localStorage.setItem('axis_data', JSON.stringify(chats));
+            renderSidebar();
+        } catch (e) { 
+            // Mock response for preview if backend is missing
+            addUI("Sync Error: Dimension not connected. Please ensure backend is active.", 'twin'); 
         }
-
-        const chat = chats.find(c => c.id === activeId);
-        addUI(text, 'user');
-        chat.history.push({ role: 'user', text });
-        input.value = '';
-        status.innerText = "SHADOW_SYNC: PROCESSING...";
-
-        try {
-            const res = await fetch('/api/sync', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    prompt: text, 
-                    history: chat.history, 
-                    globalMemory: globalMemory, 
-                    generateTitle: chat.history.length < 3,
-                    identity: "Advanced X-dimensional Identity Shadow"
-                })
-            });
-
-            const data = await res.json();
-            if (data.memoryUpdate) globalMemory += ` | ${data.memoryUpdate}`;
-            if (data.title) chat.name = data.title;
-            
-            status.innerText = "SHADOW_SYNC: STABLE";
-            addUI(data.text, 'twin'); 
-            chat.history.push({ role: 'twin', text: data.text });
-            save();
-        } catch (e) { status.innerText = "SHADOW_SYNC: SEVERED"; }
     }
 
     function addUI(txt, cls) {
         const f = document.getElementById('feed');
         const d = document.createElement('div');
         d.className = `bubble ${cls}`;
+        
+        // Media Detection
+        const imgRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i;
+        const vidRegex = /(https?:\/\/.*\.(?:mp4|webm))/i;
 
-        const imgRegex = /\.(jpeg|jpg|gif|png|webp)$/i;
-        const vidRegex = /\.(mp4|webm|ogg)$/i;
-
+        if (vidRegex.test(txt)) {
+            const match = txt.match(vidRegex)[0];
+            d.innerHTML = `<video src="${match}" controls></video>`;
+            txt = txt.replace(match, '');
+        } 
         if (imgRegex.test(txt)) {
-            d.innerHTML = `<img src="${txt}" alt="Visual Sync Error">`;
-        } else if (vidRegex.test(txt)) {
-            d.innerHTML = `<video src="${txt}" controls></video>`;
-        } else {
-            d.innerText = txt;
+            const match = txt.match(imgRegex)[0];
+            d.innerHTML += `<img src="${match}">`;
+            txt = txt.replace(match, '');
+        }
+
+        if (txt.trim().length > 0) {
+            const textContainer = document.createElement('div');
+            textContainer.innerHTML = marked.parse(txt);
+            d.prepend(textContainer);
         }
 
         f.appendChild(d);
@@ -387,12 +205,7 @@ header {
     }
 
     document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') sync(); });
-
-    // THE FIX: Reset everything to null on load and ensure the UI shows nothing.
-    window.onload = () => {
-        startFresh();
-        renderSidebar();
-    };
+    window.onload = startFresh;
 </script>
 </body>
 </html>
